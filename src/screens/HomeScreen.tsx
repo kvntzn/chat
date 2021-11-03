@@ -1,30 +1,33 @@
 import React, { useEffect } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { StyleSheet, Text, View } from 'react-native'
-import { State } from '@twilio/conversations'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { RootStackParamList } from '../type/RootStackParamList'
-import { Client } from '@twilio/conversations'
+import { useConversationContext } from '../provider/ConversationsProvider'
+import { Conversation } from '@twilio/conversations'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>
 
 const HomeScreen = ({ route }: Props) => {
   const token = route.params.token
 
-  useEffect(() => {
-    const client = new Client(token)
+  const { conversations, initializeClient } =
+    useConversationContext()
 
-    // Before you use the client, subscribe to the `'stateChanged'` event and wait
-    // for the `'initialized'` state to be reported.
-    client.on('stateChanged', (state: State) => {
-      if (state === 'initialized') {
-        // Use the client
-      }
-    })
+  useEffect(() => {
+    initializeClient(token)
   }, [])
+
+  const renderItem = ({ item }: { item: Conversation }) => {
+    return <Text>{item.friendlyName}</Text>
+  }
 
   return (
     <View>
-      <Text>Hello : {token} </Text>
+      <FlatList
+        data={conversations}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.sid}
+      />
     </View>
   )
 }

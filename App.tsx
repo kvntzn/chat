@@ -1,66 +1,25 @@
-import { StatusBar } from 'expo-status-bar'
-import React, { useState } from 'react'
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native'
-import { Client, State } from '@twilio/conversations'
-import axios, { AxiosResponse } from 'axios'
+import React from 'react'
+import { Text } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import LoginScreen from './src/screens/LoginScreen'
+import HomeScreen from './src/screens/HomeScreen'
 
 export default function App() {
-  const [textInput, setTextInput] = useState('')
-
-  const onLogin = async () => {
-    const response: AxiosResponse<IToken> = await axios.get(
-      `http://localhost:3000/token/${textInput}`
-    )
-    const { token } = response.data
-    console.log('token', token)
-
-    const client = new Client(token)
-    client.on('stateChanged', (state: State) => {
-      if (state === 'initialized') {
-        // Use the client
-        console.log(state)
-      }
-    })
-  }
+  const Stack = createNativeStackNavigator()
 
   return (
-    <View style={styles.container}>
-      <StatusBar style='auto' />
-      <TextInput
-        value={textInput}
-        onChangeText={setTextInput}
-        style={{
-          borderWidth: 0.2,
-          height: 40,
-        }}
-      />
-      <TouchableOpacity style={styles.button} onPress={onLogin}>
-        <View>
-          <Text style={{ color: '#fff' }}>Login</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Welcome' component={LoginScreen} />
+        <Stack.Screen
+          name='Home'
+          component={HomeScreen}
+          options={{
+            headerRight: () => <Text>Add</Text>,
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  button: {
-    marginTop: 8,
-    backgroundColor: '#000',
-    borderRadius: 8,
-    alignItems: 'center',
-    padding: 8,
-  },
-})
